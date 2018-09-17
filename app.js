@@ -21,18 +21,29 @@ document.addEventListener('DOMContentLoaded', () => {
       for (let i = 0; i < lis.length; i += 1) {
         let li = lis[i];
         if (li.className === 'responded') {
-          li.style.display = '';  
+          li.style.display = '';
+          li.childNodes[1].style.display = 'none';
         } else {
-          li.style.display = 'none';                        
+          li.style.display = 'none';                     
         }
       }
     } else {
       for (let i = 0; i < lis.length; i += 1) {
         let li = lis[i];
         li.style.display = '';
+        li.childNodes[1].style.display = '';
       }                                 
     }
   });
+
+  function isUnique(text) {
+    const invitees = [];
+    const lis = document.querySelectorAll('li');
+    for (let i = 0; i < lis.length; i++) {
+      invitees.push(lis[i].childNodes[0].textContent.toLowerCase());
+    }
+    return invitees.includes(text.toLowerCase()) ? false : true;
+  }
   
   function createLI(text) {
     const li = document.createElement('li');
@@ -57,9 +68,13 @@ document.addEventListener('DOMContentLoaded', () => {
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     const text = input.value;
-    input.value = '';
-    const li = createLI(text);
-    ul.appendChild(li);
+    if (isUnique(text)) {
+      input.value = '';
+      const li = createLI(text);
+      ul.appendChild(li);
+    } else {
+      alert('The name "'+ text + '" has already been taken!');
+    }
   });
     
   ul.addEventListener('change', (e) => {
@@ -86,16 +101,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const input = document.createElement('input');
         input.type = 'text';
         input.value = span.textContent;
+        input.attributes = 'required'
         li.insertBefore(input, span);
         li.removeChild(span);
         button.textContent = 'save';
       } else if (button.textContent === 'save') { 
         const input = li.firstElementChild;
         const span = document.createElement('span');
-        span.textContent = input.value;
-        li.insertBefore(span, input);
-        li.removeChild(input);
-        button.textContent = 'edit';
+        if (input.value.length < 3){
+          alert('Please lengthen the name to 3 characters or more');
+        } else if (isUnique(input.value)) {
+          span.textContent = input.value;
+          li.insertBefore(span, input);
+          li.removeChild(input);
+          button.textContent = 'edit';
+        } else {
+          alert('The name "'+ input.value + '" has already been taken!');
+        }
       }
     }
   });  
